@@ -21,14 +21,14 @@ const generateId = () => crypto.randomUUID();
 
 // Seed data
 const SEED_PRODUCTS: Product[] = [
-  { id: generateId(), name: "Laptop Dell Inspiron 15", sku: "DELL-INS-15", category: "Electronics", price: 749.99, created_at: new Date().toISOString() },
-  { id: generateId(), name: "Office Chair Ergonomic", sku: "CHAIR-ERG-01", category: "Furniture", price: 299.99, created_at: new Date().toISOString() },
-  { id: generateId(), name: "Wireless Mouse Logitech", sku: "LOG-MX-M", category: "Accessories", price: 49.99, created_at: new Date().toISOString() },
-  { id: generateId(), name: "USB-C Hub 7-in-1", sku: "USB-HUB-7", category: "Accessories", price: 39.99, created_at: new Date().toISOString() },
-  { id: generateId(), name: "Monitor 27\" 4K", sku: "MON-27-4K", category: "Electronics", price: 449.99, created_at: new Date().toISOString() },
-  { id: generateId(), name: "Mechanical Keyboard", sku: "KB-MECH-01", category: "Accessories", price: 129.99, created_at: new Date().toISOString() },
-  { id: generateId(), name: "Standing Desk Frame", sku: "DESK-STD-01", category: "Furniture", price: 399.99, created_at: new Date().toISOString() },
-  { id: generateId(), name: "Webcam HD 1080p", sku: "CAM-HD-1080", category: "Electronics", price: 79.99, created_at: new Date().toISOString() },
+  { id: generateId(), name: "Laptop Dell Inspiron 15", sku: "DELL-INS-15", category: "Electronics", price: 749.99, quantity: 10, created_at: new Date().toISOString() },
+  { id: generateId(), name: "Office Chair Ergonomic", sku: "CHAIR-ERG-01", category: "Furniture", price: 299.99, quantity: 5, created_at: new Date().toISOString() },
+  { id: generateId(), name: "Wireless Mouse Logitech", sku: "LOG-MX-M", category: "Accessories", price: 49.99, quantity: 25, created_at: new Date().toISOString() },
+  { id: generateId(), name: "USB-C Hub 7-in-1", sku: "USB-HUB-7", category: "Accessories", price: 39.99, quantity: 30, created_at: new Date().toISOString() },
+  { id: generateId(), name: "Monitor 27\" 4K", sku: "MON-27-4K", category: "Electronics", price: 449.99, quantity: 8, created_at: new Date().toISOString() },
+  { id: generateId(), name: "Mechanical Keyboard", sku: "KB-MECH-01", category: "Accessories", price: 129.99, quantity: 15, created_at: new Date().toISOString() },
+  { id: generateId(), name: "Standing Desk Frame", sku: "DESK-STD-01", category: "Furniture", price: 399.99, quantity: 3, created_at: new Date().toISOString() },
+  { id: generateId(), name: "Webcam HD 1080p", sku: "CAM-HD-1080", category: "Electronics", price: 79.99, quantity: 12, created_at: new Date().toISOString() },
 ];
 
 export function useInventoryStore() {
@@ -78,6 +78,10 @@ export function useInventoryStore() {
     return product;
   }, []);
 
+  const updateProductQuantity = useCallback((id: string, quantity: number) => {
+    setProducts((prev) => prev.map((p) => (p.id === id ? { ...p, quantity } : p)));
+  }, []);
+
   const addPurchaseItem = useCallback((data: Omit<PurchaseItem, "id" | "created_at">) => {
     const item: PurchaseItem = { ...data, id: generateId(), created_at: new Date().toISOString() };
     setPurchaseItems((prev) => [item, ...prev]);
@@ -100,5 +104,6 @@ export function useInventoryStore() {
     addPurchaseItem,
     updatePurchaseItem,
     deletePurchaseItem,
+    updateProductQuantity,
   };
 }

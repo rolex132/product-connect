@@ -4,6 +4,7 @@ export interface Product {
   sku: string;
   category: string;
   price: number;
+  quantity: number;
   created_at: string;
 }
 

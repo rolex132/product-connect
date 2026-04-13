@@ -1,4 +1,6 @@
-import { Package2 } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Package2, Boxes } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { PurchaseItemForm } from "@/components/PurchaseItemForm";
 import { PurchaseItemTable } from "@/components/PurchaseItemTable";
 import { useInventoryStore } from "@/hooks/useInventoryStore";
@@ -24,10 +26,16 @@ const Index = () => {
             <Package2 className="h-5 w-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="text-lg font-semibold text-foreground">Inventory App</h1>
+            <h1 className="text-lg font-semibold text-foreground">Checkout</h1>
             <p className="text-xs text-muted-foreground">Purchase Item Management</p>
           </div>
-          <div className="ml-auto flex gap-6 text-sm">
+          <Link to="/inventory" className="ml-auto">
+            <Button variant="outline" size="sm">
+              <Boxes className="h-4 w-4 mr-2" />
+              Inventory
+            </Button>
+          </Link>
+          <div className="flex gap-6 text-sm">
             <div className="text-right">
               <p className="text-muted-foreground">Total Items</p>
               <p className="font-semibold text-foreground">{purchaseItems.length}</p>
