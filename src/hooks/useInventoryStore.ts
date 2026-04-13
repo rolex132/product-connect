@@ -95,6 +95,10 @@ export function useInventoryStore() {
     setPurchaseItems((prev) => prev.filter((item) => item.id !== id));
   }, []);
 
+  const clearPurchaseItems = useCallback(() => {
+    setPurchaseItems([]);
+  }, []);
+
   return {
     products,
     purchaseItems,
@@ -105,5 +109,6 @@ export function useInventoryStore() {
     updatePurchaseItem,
     deletePurchaseItem,
     updateProductQuantity,
+    clearPurchaseItems,
   };
 }
