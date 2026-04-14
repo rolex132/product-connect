@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProductSearch } from "./ProductSearch";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 import type { Product } from "@/types/inventory";
 
@@ -16,6 +17,7 @@ interface PurchaseItemFormProps {
 }
 
 export function PurchaseItemForm({ searchProducts, findSimilarProduct, createProduct, addPurchaseItem }: PurchaseItemFormProps) {
+  const isMobile = useIsMobile();
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [itemName, setItemName] = useState("");
   const [quantity, setQuantity] = useState("");
@@ -82,7 +84,7 @@ export function PurchaseItemForm({ searchProducts, findSimilarProduct, createPro
               value={itemName}
             />
             {showSuggestion && (
-              <div className="rounded-md bg-warning/10 border border-warning/30 p-3 animate-fade-in">
+              <div className="rounded-md bg-primary/10 border border-primary/20 p-3 animate-in fade-in-0 zoom-in-95">
                 <p className="text-sm text-foreground">
                   Similar product found: <strong>{showSuggestion.name}</strong>.{" "}
                   <button type="button" className="text-primary font-medium underline" onClick={() => handleSelect(showSuggestion)}>
@@ -93,18 +95,18 @@ export function PurchaseItemForm({ searchProducts, findSimilarProduct, createPro
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className={isMobile ? "space-y-4" : "grid grid-cols-2 gap-4"}>
             <div className="space-y-2">
               <Label htmlFor="quantity">Quantity</Label>
-              <Input id="quantity" type="number" min="1" step="1" value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="0" />
+              <Input id="quantity" type="number" min="1" step="1" value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="0" className="h-10" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="price">Unit Price ($)</Label>
-              <Input id="price" type="number" min="0" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="0.00" />
+              <Input id="price" type="number" min="0" step="0.01" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="0.00" className="h-10" />
             </div>
           </div>
 
-          <Button type="submit" className="w-full">
+          <Button type="submit" className="w-full h-11">
             <PackagePlus className="h-4 w-4 mr-2" />
             Add Item
           </Button>

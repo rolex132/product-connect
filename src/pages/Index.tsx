@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Package2, Boxes, ShoppingCart, CheckCircle } from "lucide-react";
+import { Package2, Boxes, ShoppingCart, CheckCircle, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PurchaseItemForm } from "@/components/PurchaseItemForm";
 import { PurchaseItemTable } from "@/components/PurchaseItemTable";
 import { useInventoryStore } from "@/hooks/useInventoryStore";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 import {
   Dialog,
@@ -14,6 +15,17 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetDescription,
+} from "@/components/ui/sheet";
+import {
+  Card,
+  CardContent,
+} from "@/components/ui/card";
 
 const Index = () => {
   const {
@@ -27,7 +39,9 @@ const Index = () => {
     clearPurchaseItems,
   } = useInventoryStore();
 
+  const isMobile = useIsMobile();
   const [showCheckout, setShowCheckout] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const totalValue = purchaseItems.reduce((sum, i) => sum + i.quantity * i.price, 0);
 
@@ -38,40 +52,105 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4 flex items-center gap-3">
-          <div className="h-9 w-9 rounded-lg bg-primary flex items-center justify-center">
-            <Package2 className="h-5 w-5 text-primary-foreground" />
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20">
+      <header className="sticky top-0 z-50 border-b bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/60">
+        <div className="container mx-auto px-4">
+          <div className="flex h-16 items-center gap-3">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg shadow-primary/20">
+                <Package2 className="h-5 w-5 text-primary-foreground" />
+              </div>
+              <div className="hidden sm:block">
+                <h1 className="text-lg font-bold text-foreground">Checkout</h1>
+                <p className="text-xs text-muted-foreground">Purchase Items</p>
+              </div>
+            </div>
+
+            {isMobile ? (
+              <>
+                <div className="flex items-center gap-2">
+                  {purchaseItems.length > 0 && (
+                    <Button 
+                      size="sm" 
+                      onClick={() => setShowCheckout(true)}
+                      className="relative"
+                    >
+                      <ShoppingCart className="h-4 w-4" />
+                      <span className="ml-1">{purchaseItems.length}</span>
+                    </Button>
+                  )}
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    className="h-9 w-9"
+                    onClick={() => setMobileMenuOpen(true)}
+                  >
+                    <Menu className="h-4 w-4" />
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-4 mr-4">
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground">Items</p>
+                    <p className="font-bold text-lg text-foreground">{purchaseItems.length}</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-muted-foreground">Total</p>
+                    <p className="font-bold text-lg text-primary">${totalValue.toFixed(2)}</p>
+                  </div>
+                </div>
+                <Link to="/inventory">
+                  <Button variant="outline" size="sm">
+                    <Boxes className="h-4 w-4 mr-2" />
+                    Inventory
+                  </Button>
+                </Link>
+                {purchaseItems.length > 0 && (
+                  <Button size="sm" onClick={() => setShowCheckout(true)}>
+                    <ShoppingCart className="h-4 w-4 mr-2" />
+                    Checkout ({purchaseItems.length})
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
-          <div>
-            <h1 className="text-lg font-semibold text-foreground">Checkout</h1>
-            <p className="text-xs text-muted-foreground">Purchase Item Management</p>
-          </div>
-          <Link to="/inventory" className="ml-auto">
-            <Button variant="outline" size="sm">
-              <Boxes className="h-4 w-4 mr-2" />
-              Inventory
-            </Button>
-          </Link>
-          {purchaseItems.length > 0 && (
-            <Button size="sm" onClick={() => setShowCheckout(true)}>
-              <ShoppingCart className="h-4 w-4 mr-2" />
-              Checkout ({purchaseItems.length})
-            </Button>
+
+          {isMobile && purchaseItems.length > 0 && (
+            <div className="pb-3 flex items-center justify-between px-1">
+              <div className="flex items-center gap-4">
+                <div>
+                  <p className="text-xs text-muted-foreground">Items</p>
+                  <p className="font-bold text-foreground">{purchaseItems.length}</p>
+                </div>
+                <div className="h-8 w-px bg-border" />
+                <div>
+                  <p className="text-xs text-muted-foreground">Total</p>
+                  <p className="font-bold text-primary">${totalValue.toFixed(2)}</p>
+                </div>
+              </div>
+            </div>
           )}
-          <div className="flex gap-6 text-sm">
-            <div className="text-right">
-              <p className="text-muted-foreground">Total Items</p>
-              <p className="font-semibold text-foreground">{purchaseItems.length}</p>
-            </div>
-            <div className="text-right">
-              <p className="text-muted-foreground">Total Value</p>
-              <p className="font-semibold text-foreground">${totalValue.toFixed(2)}</p>
-            </div>
-          </div>
         </div>
       </header>
+
+      <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+        <SheetContent side="right" className="w-[280px] sm:w-[320px]">
+          <SheetHeader className="pb-4 border-b">
+            <SheetTitle>Menu</SheetTitle>
+            <SheetDescription>Navigate the app</SheetDescription>
+          </SheetHeader>
+          <div className="flex flex-col gap-2 mt-4">
+            <Link to="/inventory" onClick={() => setMobileMenuOpen(false)}>
+              <Button variant="outline" className="w-full justify-start">
+                <Boxes className="h-4 w-4 mr-2" />
+                Inventory
+              </Button>
+            </Link>
+          </div>
+        </SheetContent>
+      </Sheet>
 
       <main className="container mx-auto px-4 py-6 space-y-6 max-w-4xl">
         <PurchaseItemForm
@@ -91,7 +170,7 @@ const Index = () => {
       </main>
 
       <Dialog open={showCheckout} onOpenChange={setShowCheckout}>
-        <DialogContent>
+        <DialogContent className={isMobile ? "max-w-[calc(100%-16px)] max-h-[85vh] overflow-y-auto" : ""}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <CheckCircle className="h-5 w-5 text-green-600" />
@@ -134,7 +213,7 @@ const Index = () => {
               </table>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className={isMobile ? "flex-col-reverse gap-2 sm:flex-row" : ""}>
             <Button variant="outline" onClick={() => setShowCheckout(false)}>Cancel</Button>
             <Button onClick={handleCheckout}>
               <CheckCircle className="h-4 w-4 mr-2" />

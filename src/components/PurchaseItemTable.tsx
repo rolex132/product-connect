@@ -7,7 +7,9 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { ProductSearch } from "./ProductSearch";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 import type { Product, PurchaseItem } from "@/types/inventory";
 
@@ -23,6 +25,7 @@ interface PurchaseItemTableProps {
 type SortKey = "item_name" | "quantity" | "price" | "created_at";
 
 export function PurchaseItemTable({ items, searchProducts, findSimilarProduct, createProduct, updatePurchaseItem, deletePurchaseItem }: PurchaseItemTableProps) {
+  const isMobile = useIsMobile();
   const [sortKey, setSortKey] = useState<SortKey>("created_at");
   const [sortAsc, setSortAsc] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -89,7 +92,7 @@ export function PurchaseItemTable({ items, searchProducts, findSimilarProduct, c
   };
 
   const SortButton = ({ label, sortKeyVal }: { label: string; sortKeyVal: SortKey }) => (
-    <button onClick={() => toggleSort(sortKeyVal)} className="flex items-center gap-1 hover:text-foreground transition-colors">
+    <button onClick={() => toggleSort(sortKeyVal)} className="flex items-center gap-1 hover:text-foreground transition-colors text-xs sm:text-sm">
       {label}
       <ArrowUpDown className="h-3 w-3" />
     </button>
@@ -102,15 +105,59 @@ export function PurchaseItemTable({ items, searchProducts, findSimilarProduct, c
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2 text-lg">
               <Package className="h-5 w-5 text-primary" />
-              Purchase Items ({items.length})
+              <span className="hidden sm:inline">Purchase Items</span>
+              <Badge variant="secondary" className="ml-1">{items.length}</Badge>
             </CardTitle>
           </div>
         </CardHeader>
         <CardContent>
           {items.length === 0 ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <Package className="h-12 w-12 mx-auto mb-3 opacity-30" />
-              <p className="text-sm">No purchase items yet. Add your first item above.</p>
+            <div className="text-center py-12">
+              <Package className="h-12 w-12 mx-auto mb-3 text-muted-foreground/30" />
+              <p className="text-muted-foreground">No purchase items yet. Add your first item above.</p>
+            </div>
+          ) : isMobile ? (
+            <div className="space-y-3">
+              {paginated.map((item) => (
+                <Card key={item.id} className="p-4">
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <h3 className="font-semibold">{item.item_name}</h3>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(item)}>
+                        <Pencil className="h-3.5 w-3.5" />
+                      </Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => setDeleteId(item.id)}>
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </Button>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3 text-sm">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Quantity</p>
+                      <p className="font-semibold">{item.quantity}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Unit Price</p>
+                      <p className="font-semibold">${item.price.toFixed(2)}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Total</p>
+                      <p className="font-bold text-primary">${(item.quantity * item.price).toFixed(2)}</p>
+                    </div>
+                  </div>
+                </Card>
+              ))}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between pt-2">
+                  <p className="text-sm text-muted-foreground">Page {page + 1} of {totalPages}</p>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="sm" disabled={page === 0} onClick={() => setPage(page - 1)}>Prev</Button>
+                    <Button variant="outline" size="sm" disabled={page >= totalPages - 1} onClick={() => setPage(page + 1)}>Next</Button>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <>
@@ -161,23 +208,21 @@ export function PurchaseItemTable({ items, searchProducts, findSimilarProduct, c
         </CardContent>
       </Card>
 
-      {/* Delete confirmation */}
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
-        <AlertDialogContent>
+        <AlertDialogContent className={isMobile ? "max-w-[calc(100%-16px)]" : ""}>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Item</AlertDialogTitle>
             <AlertDialogDescription>Are you sure you want to delete this purchase item? This action cannot be undone.</AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
+          <AlertDialogFooter className={isMobile ? "flex-col-reverse gap-2 sm:flex-row" : ""}>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Edit dialog */}
       <Dialog open={!!editItem} onOpenChange={() => setEditItem(null)}>
-        <DialogContent>
+        <DialogContent className={isMobile ? "max-w-[calc(100%-16px)]" : ""}>
           <DialogHeader>
             <DialogTitle>Edit Purchase Item</DialogTitle>
           </DialogHeader>
@@ -191,7 +236,7 @@ export function PurchaseItemTable({ items, searchProducts, findSimilarProduct, c
                 value={editName}
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className={isMobile ? "space-y-4" : "grid grid-cols-2 gap-4"}>
               <div className="space-y-2">
                 <Label>Quantity</Label>
                 <Input type="number" min="1" value={editQty} onChange={(e) => setEditQty(e.target.value)} />
@@ -202,7 +247,7 @@ export function PurchaseItemTable({ items, searchProducts, findSimilarProduct, c
               </div>
             </div>
           </div>
-          <DialogFooter>
+          <DialogFooter className={isMobile ? "flex-col-reverse gap-2 sm:flex-row" : ""}>
             <Button variant="outline" onClick={() => setEditItem(null)}>Cancel</Button>
             <Button onClick={handleEditSave}>Save Changes</Button>
           </DialogFooter>
